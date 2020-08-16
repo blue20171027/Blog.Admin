@@ -403,6 +403,7 @@ export default {
       getPermissionTreeTable(para).then(res => {
         this.users = res.data.response;
         this.listLoading = false;
+        console.log(this.users)
         //NProgress.done();
       });
     },

@@ -8,11 +8,21 @@
       :data="users"
       highlight-current-row
       v-loading="listLoading"
+      @selection-change="selsChange"
       @current-change="selectCurrentRow"
+      row-key="Id"
+      border
+      lazy
+      :load="load"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       style="width: 100%;"
     >
       <el-table-column type="index" width="80"></el-table-column>
-      <el-table-column prop="Name" label="角色名" width sortable></el-table-column>
+      <el-table-column prop="Name" label="角色名" width sortable>
+        <template slot-scope="scope">
+          {{scope.row.Name}}
+        </template>
+      </el-table-column>
       <el-table-column prop="Description" label="说明" width sortable></el-table-column>
       <el-table-column prop="CreateTime" label="创建时间" :formatter="formatCreateTime" width sortable></el-table-column>
       <!--<el-table-column prop="CreateBy" label="创建者" width="" sortable>-->
@@ -196,8 +206,22 @@ export default {
         this.users = res.data.response.data;
         this.listLoading = false;
 
+        console.log(res.data.response)
         //NProgress.done();
       });
+    },
+    load(tree, treeNode, resolve) {
+      let para = {
+        page: this.page,
+        f: tree.Id,
+        key: this.filters.Name
+      };
+      getRoleListPage(para).then(res => {
+        resolve(res.data.response.data);
+      });
+    },
+    selsChange: function(sels) {
+      this.sels = sels;
     },
     //删除
     handleDel() {
