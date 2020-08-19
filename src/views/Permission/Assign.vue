@@ -66,7 +66,7 @@
 
 <script>
     import util from '../../../util/date'
-    import {getRoleListPage, getPermissionTree, getPermissionIds, addRolePermission, getCurrentUserRoleTree} from '../../api/api';
+    import { getPermissionTree, getPermissionIds, addRolePermission, getCurrentUserRoleTree} from '../../api/api';
 
     let id = 1000;
 
