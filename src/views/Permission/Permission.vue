@@ -234,7 +234,7 @@
             style="width: 400px"
             v-model="addForm.PidArr"
             :options="options"
-            filterable
+            filterable 
             change-on-select
           ></el-cascader>
         </el-form-item>

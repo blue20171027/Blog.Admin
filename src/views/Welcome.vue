@@ -49,7 +49,7 @@
             <el-table-column prop="RequestData" label="参数" width="" >
             </el-table-column>
             <el-table-column prop="Agent" label="Agent" width="80" show-overflow-tooltip>
-                <template scope="scope">
+                <template slot-scope="scope">
                     <div style="text-decoration:underline;cursor:pointer;">
                         {{ scope.row.Agent}}
                     </div>

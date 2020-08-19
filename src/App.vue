@@ -432,19 +432,19 @@
         watch: {
             // 对router进行监听，每当访问router时，对tags的进行修改
             $route: async function(newValue, from) {
-                
+                let that = this
                 if (global.IS_IDS4) {
-                    await this.refreshUserInfo();
+                    await that.refreshUserInfo();
                 }
 
-                this.setTags(newValue);
+                that.setTags(newValue);
 
-                const tags = this.$refs.tag
-                this.$nextTick(() => {
+                const tags = that.$refs.tag
+                that.$nextTick(() => {
                     if (tags) {
                         for (const tag of tags) {
-                            if (tag.to.path === this.$route.path) {
-                                this.$refs.scrollPane.moveToTarget(tag, tags)
+                            if (tag.to.path === that.$route.path) {
+                                that.$refs.scrollPane.moveToTarget(tag, tags)
                                 // when query is different then update
                                 // if (tag.to.fullPath !== this.$route.fullPath) {
                                 //     this.$store.dispatch('tagsView/updateVisitedView', this.$route)
@@ -479,9 +479,9 @@
 <style lang="css">
     @import "./style/home.css";
 
-    .el-menu-vertical-demo {
-        /*width: 230px;*/
-    }
+    /* .el-menu-vertical-demo {
+        width: 230px;
+    } */
 
     .el-breadcrumb {
         line-height: 60px !important;
@@ -545,15 +545,15 @@
         text-decoration: none;
     }
 
-    .tags-li.active {
-        /*color: #fff;*/
-        /*border: 1px solid #10B9D3;*/
-        /*background-color: #10B9D3;*/
-    }
+    /* .tags-li.active {
+        color: #fff;
+        border: 1px solid #10B9D3;
+        background-color: #10B9D3;
+    } */
 
-    .tags-li.active .tags-li-title {
-        /*color: #fff;*/
-    }
+    /* .tags-li.active .tags-li-title {
+        color: #fff;
+    } */
 
     .tags-close-box {
         box-sizing: border-box;
@@ -669,9 +669,9 @@
             width: 300px !important;
         }
 
-        .count-test label {
+        /* .count-test label {
 
-        }
+        } */
 
         .content-wrapper .tags {
             margin: 0px;
@@ -715,11 +715,11 @@
         margin-right: 15px;
     }
 
-    .tags-view-container .tags-view-wrapper .tags-view-item.active {
-        /*background-color: #42b983;*/
-        /*color: #fff;*/
-        /*border-color: #42b983;*/
-    }
+    /* .tags-view-container .tags-view-wrapper .tags-view-item.active {
+        background-color: #42b983;
+        color: #fff;
+        border-color: #42b983;
+    } */
 
     .tags-view-container .tags-view-wrapper .tags-view-item.active::before {
         content: "";

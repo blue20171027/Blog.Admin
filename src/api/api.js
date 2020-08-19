@@ -200,6 +200,12 @@ export const editRole = params => {
 export const addRole = params => {
     return axios.post(`${base}/api/role/post`, params);
 };
+export const getRoleTree = params => {
+    return axios.get(`${base}/api/role/getRoleTree`, {params: {}});
+};
+export const getCurrentUserRoleTree = params => {
+    return axios.get(`${base}/api/role/GetCurrentUserRoleTree`, {params: params});
+};
 
 // 接口模块管理
 export const getModuleListPage = params => {

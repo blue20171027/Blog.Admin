@@ -7,12 +7,17 @@
                     <span>权限</span>
                     <el-button @click="getRoles" style="float: right; padding: 3px 0" type="text">刷新</el-button>
                 </div>
-                <div v-for="o in roles" :key="o.Id" @click="operate(o.Id)" :class="o.Id==roleid ? 'active':''"
+                <!-- <div v-for="o in roles" :key="o.Id" @click="operate(o.Id)" :class="o.Id==roleid ? 'active':''"
                      class="text item role-item">
                     {{o.Name }}
-                </div>
+                </div> -->
+                <el-tree
+                :data="roles"
+                :props="defaultProps2"
+                highlight-current
+                @node-click='operate'>
+                </el-tree>
             </el-card>
-
         </el-col>
         <el-col :span="16" class="toolbar perms morechildren">
             <el-card class="box-card">
@@ -61,7 +66,7 @@
 
 <script>
     import util from '../../../util/date'
-    import {getRoleListPage, getPermissionTree, getPermissionIds, addRolePermission} from '../../api/api';
+    import {getRoleListPage, getPermissionTree, getPermissionIds, addRolePermission, getCurrentUserRoleTree} from '../../api/api';
 
     let id = 1000;
 
@@ -83,6 +88,10 @@
                     children: 'children',
                     label: 'label',
                     btns: 'btns',
+                },
+                defaultProps2: {
+                    children: 'children',
+                    label: 'label'
                 },
                 selectedPermissions: [],
                 currentRoleCode: "",
@@ -119,9 +128,11 @@
             },
             //获取角色列表
             getRoles() {
-                getRoleListPage().then((res) => {
-                    this.roles = res.data.response.data;
-                    this.getPermissions();
+                let that = this;
+                let para = {hasCurrentRole : false};
+                getCurrentUserRoleTree(para).then((res) => {
+                    that.roles = res.data.response;
+                    that.getPermissions();
                 });
             },
             //获取菜单树
@@ -142,7 +153,6 @@
                 this.assignBtns = [];
                 let para = {rid: rid}
                 getPermissionIds(para).then((res) => {
-
                     _this.loadingSave=false;
                     _this.loadingSaveStr='保存';
                     this.$refs.tree.setCheckedKeys(res.data.response.permissionids);
@@ -150,12 +160,12 @@
 
                 });
             },
-            operate(id) {
-
+            operate(role) {
+                console.log(role)
                 this.loadingSave=true;
                 this.loadingSaveStr='加载中...';
-                this.roleid = id;
-                this.getPermissionIds(id);
+                this.roleid = role.value;
+                this.getPermissionIds(role.value);
             },
             saveAssign() {
 
@@ -218,6 +228,23 @@
                         type: 'error'
                     });
                 }
+            },
+            loadNode(node, resolve) {
+                if (node.level === 0) {
+                    return resolve([{ name: 'region' }]);
+                }
+                if (node.level > 1) return resolve([]);
+
+                setTimeout(() => {
+                    const data = [{
+                        name: 'leaf',
+                        leaf: true
+                    }, {
+                        name: 'zone'
+                    }];
+
+                    resolve(data);
+                }, 500);
             },
             append(data) {
                 const newChild = {id: id++, label: 'testtest', children: []};

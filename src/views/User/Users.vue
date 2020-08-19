@@ -65,11 +65,16 @@
                     <!--<el-input v-model="editForm.uLoginPWD" show-password  auto-complete="off"></el-input>-->
                 <!--</el-form-item>-->
 
-                <el-form-item label="角色" prop="RIDs">
-                    <el-select multiple v-model="editForm.RIDs" placeholder="请选择角色">
+                <el-form-item label="角色">
+                    <!-- <el-select multiple v-model="editForm.RIDs" placeholder="请选择角色">
                         <el-option  :key="0" :label="'未选择角色'" :value="0"></el-option>
                         <el-option v-for="item in roles" :key="item.Id" :label="item.Name" :value="item.Id"></el-option>
-                    </el-select>
+                    </el-select> -->
+                    <el-cascader 
+                    v-model="editForm.RIDArray"
+                    :options="roles"
+                    :props="{ multiple: true, checkStrictly: true }"
+                    clearable></el-cascader>
                 </el-form-item>
 
                 <el-form-item label="性别">
@@ -135,7 +140,7 @@
 
 <script>
     import util from '../../../util/date'
-    import {testapi, getUserListPage,getRoleListPage , removeUser, batchRemoveUser, editUser, addUser} from '../../api/api';
+    import {testapi, getUserListPage, getCurrentUserRoleTree, removeUser, batchRemoveUser, editUser, addUser} from '../../api/api';
     import { getButtonList } from "../../promissionRouter";
     import Toolbar from "../../components/Toolbar";
 
@@ -174,6 +179,7 @@
                     id: 0,
                     uID: 0,
                     RIDs: 0,
+                    RIDArray: [],
                     uLoginName: '',
                     uRealName: '',
                     name: '',
@@ -308,10 +314,14 @@
                     return;
                 }
                 this.editFormVisible = true;
-                this.editForm = Object.assign({}, row);
 
-                getRoleListPage().then((res) => {
-                    this.roles = res.data.response.data;
+                // for (let i = 0; i < row.RIDs.length; i++) {
+                //     row.RIDArray.push({i})
+                // }
+                this.editForm = Object.assign({}, row);
+                let para = {hasCurrentRole : true};
+                getCurrentUserRoleTree(para).then((res) => {
+                    this.roles = res.data.response;
                 });
 
             },
@@ -337,11 +347,21 @@
                             this.editLoading = true;
                             //NProgress.start();
                             let para = Object.assign({}, this.editForm);
+                            console.log(para)
+                            let RIDArrayList = para.RIDArray;
+                            
+                            para.RIDs.length=0;
 
+                            RIDArrayList.forEach(item => {
+                                para.RIDs.push(item.pop()) 
+                            });
+
+                            console.log(para.RIDs);
+                            
                             para.birth = (!para.birth || para.birth == '') ? util.formatDate.format(new Date(), 'yyyy-MM-dd') : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
+                            //console.log(para)
 
                             editUser(para).then((res) => {
-
                                 if (util.isEmt.format(res)) {
                                     this.editLoading = false;
                                     return;

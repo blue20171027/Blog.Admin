@@ -43,7 +43,7 @@
             </el-table-column>
             <el-table-column
                     label="Content">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <span :class="scope.row.logColor"
                           v-html="scope.row.content? scope.row.content.substring(0,100):''"></span>
                 </template>

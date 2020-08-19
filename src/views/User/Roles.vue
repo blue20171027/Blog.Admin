@@ -66,6 +66,16 @@
         <el-form-item label="角色名" prop="Name">
           <el-input v-model="editForm.Name" auto-complete="off"></el-input>
         </el-form-item>
+        <el-form-item prop="PidArr" label="父级菜单" width sortable>
+          <el-cascader
+            placeholder="请选择，支持搜索功能"
+            style="width: 400px"
+            v-model="editForm.PidArr"
+            :options="options2"
+            filterable
+            :props="{ checkStrictly: true }"
+          ></el-cascader>
+        </el-form-item>
         <el-form-item label="状态" prop="Enabled">
           <el-select v-model="editForm.Enabled" placeholder="请选择角色状态">
             <el-option
@@ -97,6 +107,16 @@
         <el-form-item label="角色名" prop="Name">
           <el-input v-model="addForm.Name" auto-complete="off"></el-input>
         </el-form-item>
+        <el-form-item prop="PidArr" label="父级菜单" width sortable>
+          <el-cascader
+            placeholder="请选择，支持搜索功能"
+            style="width: 400px"
+            v-model="addForm.PidArr"
+            :options="options2"
+            filterable
+            :props="{ checkStrictly: true }"
+          ></el-cascader>
+        </el-form-item>
         <el-form-item label="状态" prop="Enabled">
           <el-select v-model="addForm.Enabled" placeholder="请选择角色状态">
             <el-option label="激活" value="true"></el-option>
@@ -117,7 +137,7 @@
 
 <script>
 import util from "../../../util/date";
-import { getRoleListPage, removeRole, editRole, addRole } from "../../api/api";
+import { getRoleListPage, removeRole, editRole, addRole, getRoleTree } from "../../api/api";
 import { getButtonList } from "../../promissionRouter";
 import Toolbar from "../../components/Toolbar";
 
@@ -130,6 +150,7 @@ export default {
       },
       buttonList: [],
       users: [],
+      options2: [],
       statusList: [
         { name: "激活", value: true },
         { name: "禁用", value: false }
@@ -151,7 +172,8 @@ export default {
         Id: 0,
         CreateBy: "",
         Name: "",
-        Enabled: false
+        Enabled: false,
+        PidArr: [],
       },
 
       addFormVisible: false, //新增界面是否显示
@@ -165,7 +187,8 @@ export default {
         CreateBy: "",
         CreateId: "",
         Name: "",
-        Enabled: true
+        Enabled: true,
+        PidArr: [],
       }
     };
   },
@@ -178,6 +201,7 @@ export default {
         name: item.search
       };
       this[item.Func].apply(this, item);
+      console.log(this)
     },
     //性别显示转换
     formatEnabled: function(row, column) {
@@ -268,6 +292,7 @@ export default {
     //显示编辑界面
     handleEdit() {
       let row = this.currentRow;
+      let that = this
       if (!row) {
         this.$message({
           message: "请选择要编辑的一行数据！",
@@ -276,18 +301,30 @@ export default {
 
         return;
       }
-
-      this.editFormVisible = true;
-      this.editForm = Object.assign({}, row);
+      that.editFormVisible = true;
+      that.editForm.PidArr.length = 0;
+      that.options2.length = 0;
+      let para = { pid: row.Id };
+      getRoleTree(para).then(function(res){
+        that.options2.push(res.data.response);
+        that.editForm = Object.assign({}, row);
+      });
     },
     //显示新增界面
     handleAdd() {
-      this.addFormVisible = true;
-      this.addForm = {
+      let that = this
+      that.addFormVisible = true;
+      that.addForm = {
         CreateBy: "",
         Name: "",
-        Enabled: ""
+        Enabled: "",
+        PidArr: [],
       };
+      that.options2.length = 0;
+      let para = { pid: 0 };
+      getRoleTree(para).then(function(res) {
+        that.options2.push(res.data.response);
+      });
     },
     //编辑
     editSubmit: function() {
@@ -302,6 +339,7 @@ export default {
               !para.birth || para.birth == ""
                 ? util.formatDate.format(new Date(), "yyyy-MM-dd")
                 : util.formatDate.format(new Date(para.birth), "yyyy-MM-dd");
+            para.Pid = para.PidArr.pop();
 
             editRole(para).then(res => {
               if (util.isEmt.format(res)) {
@@ -343,7 +381,8 @@ export default {
               !para.birth || para.birth == ""
                 ? util.formatDate.format(new Date(), "yyyy-MM-dd")
                 : util.formatDate.format(new Date(para.birth), "yyyy-MM-dd");
-
+            para.Pid = para.PidArr.pop();
+            console.log(para.Pid)
             var user = JSON.parse(window.localStorage.user);
 
             if (user && user.uID > 0) {
